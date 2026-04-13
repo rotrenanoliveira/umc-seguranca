@@ -12,7 +12,7 @@ import { generateNanoId } from '@/lib/nanoid'
 
 export async function authenticateAccessCode(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().post(
-    '/sessions',
+    '/auth/authenticate-access-code',
     {
       schema: {
         tags: ['authentication'],

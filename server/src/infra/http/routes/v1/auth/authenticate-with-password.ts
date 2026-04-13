@@ -11,10 +11,11 @@ import { resend } from '@/lib/resend'
 
 export async function authenticateWithPassword(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().post(
-    '/auth/authenticate',
+    '/auth/authenticate-password',
     {
       schema: {
         tags: ['authentication'],
+        summary: 'Autenticar com senha',
         description: 'Autentica o usuário com seu email e senha',
         body: z.object({
           email: z.email(),

@@ -5,4 +5,6 @@ import { getProfile } from './profile.js'
 export const userRoutes: FastifyPluginAsyncZod = async (server) => {
   /**  POST /register - Cadastra um novo usuário. */
   server.register(registerUser)
+  /**  GET /sessions/me - Retorna o perfil do usuário. */
+  server.register(getProfile)
 }

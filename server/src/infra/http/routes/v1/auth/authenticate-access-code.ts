@@ -4,7 +4,7 @@ import { and, eq } from 'drizzle-orm'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import z from 'zod'
-import { TWO_FACTOR_PENDING_TTL_MIN } from '@/config'
+import { LOCKOUT_MINUTES, MAX_LOGIN_ATTEMPTS, TWO_FACTOR_PENDING_TTL_MIN } from '@/config'
 import { db } from '@/db'
 import { accessCodesRepository, sessionsRepository, usersRepository } from '@/db/repositories'
 import { env } from '@/environment-variables'
@@ -19,24 +19,35 @@ export async function authenticateAccessCode(app: FastifyInstance) {
         summary: 'Autenticar código de acesso',
         description: 'Cria uma sessão, autenticando o usuário com o código de acesso.',
         body: z.object({
-          userId: z.string(),
+          email: z.string(),
           code: z.string(),
         }),
         response: {
-          200: z.object({
-            token: z.string(),
-          }),
-          401: z.object({
-            error: z.string(),
-          }),
+          200: z.object({ token: z.string() }),
+          401: z.object({ error: z.string() }),
+          423: z.object({ error: z.string() }),
         },
       },
     },
     async (request, reply) => {
-      const { userId, code } = request.body
+      const { email, code } = request.body
 
       // validate code format
       if (code.length !== 6) {
+        return reply.status(401).send({ error: 'Credenciais inválidas.' })
+      }
+
+      const user = await db
+        .select({
+          id: usersRepository.id,
+          failedLoginAttempts: usersRepository.failedLoginAttempts,
+          lockedUntil: usersRepository.lockedUntil,
+        })
+        .from(usersRepository)
+        .where(eq(usersRepository.email, email))
+        .then((result) => (result.length > 0 ? result[0] : null))
+
+      if (!user) {
         return reply.status(401).send({ error: 'Credenciais inválidas.' })
       }
 
@@ -47,20 +58,47 @@ export async function authenticateAccessCode(app: FastifyInstance) {
           createdAt: accessCodesRepository.createdAt,
         })
         .from(accessCodesRepository)
-        .where(and(eq(accessCodesRepository.user, userId), eq(accessCodesRepository.token, code)))
+        .innerJoin(usersRepository, eq(accessCodesRepository.user, usersRepository.id))
+        .where(and(eq(accessCodesRepository.user, user.id), eq(accessCodesRepository.token, code)))
         .then((result) => (result.length > 0 ? result[0] : null))
 
-      // Valida se o código existe
-      if (!accessCode) {
-        return reply.status(401).send({ error: 'Credenciais inválidas.' })
-      }
+      let isValidAccessCode = false
+
       // Valida se o código é válido
-      if (accessCode.code !== code) {
-        return reply.status(401).send({ error: 'Credenciais inválidas.' })
+      if (accessCode && accessCode.code === code) {
+        isValidAccessCode = true
       }
+
       // Valida se o usuário é o que enviou o código
-      if (accessCode.user !== userId) {
-        return reply.status(401).send({ error: 'Credenciais inválidas.' })
+      if (accessCode && accessCode.user === user.id) {
+        isValidAccessCode = true
+      }
+
+      const now = new Date()
+
+      if (!accessCode || !isValidAccessCode) {
+        const attempts = user.failedLoginAttempts + 1
+        let lockedUntil = user.lockedUntil
+
+        if (attempts >= MAX_LOGIN_ATTEMPTS) {
+          lockedUntil = new Date(now.getTime() + LOCKOUT_MINUTES * 60 * 1000)
+        }
+
+        await db
+          .update(usersRepository)
+          .set({
+            failedLoginAttempts: attempts >= MAX_LOGIN_ATTEMPTS ? 0 : attempts,
+            lockedUntil,
+          })
+          .where(eq(usersRepository.id, user.id))
+
+        if (attempts >= MAX_LOGIN_ATTEMPTS) {
+          return reply.status(423).send({
+            error: `Conta bloqueada por ${LOCKOUT_MINUTES} minutos após tentativas falhas de login.`,
+          })
+        }
+
+        return reply.status(401).send({ error: 'Credenciais inválidas' })
       }
 
       // Valida se o código expirou
@@ -69,33 +107,22 @@ export async function authenticateAccessCode(app: FastifyInstance) {
         return reply.status(401).send({ error: 'Token expirado.' })
       }
 
-      const user = await db
-        .select({ userId: usersRepository.id })
-        .from(usersRepository)
-        .where(eq(usersRepository.id, userId))
-        .then((result) => (result.length > 0 ? result[0] : null))
-
-      // Valida se o usuário existe
-      if (!user) {
-        return reply.status(401).send({ error: 'Credenciais inválidas.' })
-      }
-
       const sessionId = generateNanoId()
-      const accessToken = await reply.jwtSign({ sub: userId }, { expiresIn: '15m' })
-      const refreshToken = await reply.jwtSign({ sub: userId, session: sessionId }, { expiresIn: '7d' })
+      const accessToken = await reply.jwtSign({ sub: user.id }, { expiresIn: '15m' })
+      const refreshToken = await reply.jwtSign({ sub: user.id, session: sessionId }, { expiresIn: '7d' })
       const refreshTokenHash = createHash('sha256').update(refreshToken).digest('hex')
 
       // Cria sessão e exclui o código de acesso
       await Promise.all([
         db.insert(sessionsRepository).values({
           id: sessionId,
-          user: userId,
+          user: user.id,
           refreshTokenHash,
           expiresAt: dayjs().add(30, 'days').toDate(),
         }),
         db
           .delete(accessCodesRepository)
-          .where(and(eq(accessCodesRepository.user, userId), eq(accessCodesRepository.token, code))),
+          .where(and(eq(accessCodesRepository.user, user.id), eq(accessCodesRepository.token, code))),
       ])
 
       return reply

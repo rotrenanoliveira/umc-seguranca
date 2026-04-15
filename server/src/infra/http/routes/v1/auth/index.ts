@@ -3,7 +3,6 @@ import { authenticateAccessCode } from './authenticate-access-code'
 import { authenticateWithPassword } from './authenticate-with-password'
 import { forgotPassword } from './forgot-password'
 import { logout } from './logout'
-import { refreshToken } from './refresh-token'
 import { resetPassword } from './reset-password'
 
 export const authenticateRoutes: FastifyPluginAsyncZod = async (server) => {
@@ -17,6 +16,4 @@ export const authenticateRoutes: FastifyPluginAsyncZod = async (server) => {
   server.register(resetPassword)
   /** POST /sessions - Autentica o usuário com seu código de acesso e cria uma sessão. */
   server.register(authenticateAccessCode)
-  /** POST /sessions/refresh - Atualiza a sessão atual com um novo token de acesso. */
-  server.register(refreshToken)
 }

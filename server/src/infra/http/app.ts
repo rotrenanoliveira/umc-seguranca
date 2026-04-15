@@ -16,6 +16,7 @@ import {
 import { RATE_MAX, RATE_TIME_WINDOW_MS } from '@/config'
 import { env } from '@/environment-variables'
 import { authenticateRoutes } from './routes/v1/auth'
+import { sessionRoutes } from './routes/v1/sessions'
 import { userRoutes } from './routes/v1/users'
 
 export const app = fastify({
@@ -78,5 +79,6 @@ app.get('/health', async () => ({
   tlsNote: 'Em produção, termine TLS no proxy reverso ou use HTTPS nativo do Node para criptografia em trânsito.',
 }))
 
-app.register(userRoutes)
 app.register(authenticateRoutes)
+app.register(sessionRoutes)
+app.register(userRoutes)

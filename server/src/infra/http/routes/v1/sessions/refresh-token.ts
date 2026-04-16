@@ -5,8 +5,8 @@ import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import z from 'zod'
 import { env } from '@/environment-variables'
-import { db } from '@/infra/http/database'
-import { sessionsRepository } from '@/infra/http/database/repositories'
+import { db } from '@/infra/database'
+import { sessionsRepository } from '@/infra/database/repositories'
 import { generateNanoId } from '@/lib/nanoid'
 
 export async function refreshToken(app: FastifyInstance) {

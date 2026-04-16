@@ -2,8 +2,8 @@ import { eq } from 'drizzle-orm'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import z from 'zod'
-import { db } from '@/infra/http/database'
-import { sessionsRepository } from '@/infra/http/database/repositories'
+import { db } from '@/infra/database'
+import { sessionsRepository } from '@/infra/database/repositories'
 
 export async function logout(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().post(

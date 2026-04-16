@@ -2,8 +2,8 @@ import { eq } from 'drizzle-orm'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import z from 'zod'
-import { db } from '@/db'
-import { usersRepository } from '@/db/repositories'
+import { db } from '@/infra/database'
+import { usersRepository } from '@/infra/database/repositories'
 
 export async function getProfile(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().get(

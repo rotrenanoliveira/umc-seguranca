@@ -5,8 +5,8 @@ import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import z from 'zod'
 import { BCRYPT_ROUNDS, PASSWORD_RESET_TTL_MIN } from '@/config'
-import { db } from '@/db'
-import { accessCodesRepository, sessionsRepository, usersRepository } from '@/db/repositories'
+import { db } from '@/infra/database'
+import { accessCodesRepository, sessionsRepository, usersRepository } from '@/infra/database/repositories'
 
 export async function resetPassword(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().post(
@@ -18,7 +18,7 @@ export async function resetPassword(app: FastifyInstance) {
         description: 'Reset Senha',
         body: z.object({
           code: z.string().min(1),
-          password: z.string().min(10).max(128),
+          password: z.string().min(8).max(128),
         }),
         response: {
           200: z.object({ message: z.string() }),

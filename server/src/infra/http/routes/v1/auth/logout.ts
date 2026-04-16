@@ -2,8 +2,8 @@ import { eq } from 'drizzle-orm'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import z from 'zod'
-import { db } from '@/db'
-import { sessionsRepository } from '@/db/repositories'
+import { db } from '@/infra/database'
+import { sessionsRepository } from '@/infra/database/repositories'
 
 export async function logout(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().post(
@@ -11,8 +11,8 @@ export async function logout(app: FastifyInstance) {
     {
       schema: {
         tags: ['authentication'],
-        summary: 'Refresh Token',
-        description: 'Refresh the access token.',
+        summary: 'Logout',
+        description: 'Revoga uma sessão.',
         response: {
           200: z.object({ message: z.string() }),
           400: z.object({ error: z.string() }),

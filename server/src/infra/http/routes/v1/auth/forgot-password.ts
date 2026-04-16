@@ -4,8 +4,8 @@ import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import z from 'zod'
 import { PASSWORD_RESET_TTL_MIN } from '@/config'
-import { db } from '@/db'
-import { accessCodesRepository, usersRepository } from '@/db/repositories'
+import { db } from '@/infra/database'
+import { accessCodesRepository, usersRepository } from '@/infra/database/repositories'
 import { generateNanoId } from '@/lib/nanoid'
 import { resend } from '@/lib/resend'
 
@@ -60,9 +60,6 @@ export async function forgotPassword(app: FastifyInstance) {
         return reply.status(500).send({ error: 'Erro ao gerar token de recuperação de senha.' })
       }
 
-      const base = process.env.APP_PUBLIC_URL ?? 'http://localhost:3000'
-      const resetLink = `${base}/auth/password/reset?token=${encodeURIComponent(accessCode.token)}`
-
       const expiresAt = dayjs().add(PASSWORD_RESET_TTL_MIN, 'minutes')
 
       const mail = await resend.emails.send({
@@ -72,8 +69,8 @@ export async function forgotPassword(app: FastifyInstance) {
         text: [
           `Olá, ${user.name}.`,
           '',
-          `Para definir uma nova senha, use o link (válido até ${expiresAt.toDate().toLocaleDateString('pt-BR')}):`,
-          resetLink,
+          `Para definir uma nova senha, use o código de acesso: ${accessCode.token}`,
+          `Válido até ${expiresAt.toDate().toLocaleDateString('pt-BR')}`,
           '',
           'Se não foi você, ignore este e-mail.',
         ].join('\n'),

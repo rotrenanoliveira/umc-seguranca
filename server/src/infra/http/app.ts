@@ -1,6 +1,6 @@
 import 'dotenv/config'
 import fastifyCookie from '@fastify/cookie'
-import cors from '@fastify/cors'
+import fastifyCors from '@fastify/cors'
 import helmet from '@fastify/helmet'
 import fastifyJwt from '@fastify/jwt'
 import rateLimit from '@fastify/rate-limit'
@@ -21,14 +21,14 @@ import { userRoutes } from './routes/v1/users'
 
 export const app = fastify({
   logger:
-    process.env.NODE_ENV === 'test'
+    process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development'
       ? undefined
       : {
-          transport: {
-            target: 'pino-pretty',
-            options: { translateTime: 'HH:MM:ss Z', ignore: 'pid,hostname' },
-          },
+        transport: {
+          target: 'pino-pretty',
+          options: { translateTime: 'HH:MM:ss Z', ignore: 'pid,hostname' },
         },
+      },
 }).withTypeProvider<ZodTypeProvider>()
 
 app.setValidatorCompiler(validatorCompiler)
@@ -68,12 +68,20 @@ app.register(helmet, {
   contentSecurityPolicy: false,
 })
 
-app.register(cors, { origin: true })
+// CORS
+app.register(fastifyCors, {
+  origin: true,
+  credentials: true,
+  methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+})
+
+// RATE LIMIT
 app.register(rateLimit, {
   max: RATE_MAX,
   timeWindow: RATE_TIME_WINDOW_MS,
 })
 
+//==== Routes
 app.get('/health', async () => ({
   ok: true,
   tlsNote: 'Em produção, termine TLS no proxy reverso ou use HTTPS nativo do Node para criptografia em trânsito.',

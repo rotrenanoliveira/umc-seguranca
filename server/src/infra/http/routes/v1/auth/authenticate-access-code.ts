@@ -5,9 +5,9 @@ import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import z from 'zod'
 import { LOCKOUT_MINUTES, MAX_LOGIN_ATTEMPTS, TWO_FACTOR_PENDING_TTL_MIN } from '@/config'
-import { db } from '@/db'
-import { accessCodesRepository, sessionsRepository, usersRepository } from '@/db/repositories'
 import { env } from '@/environment-variables'
+import { db } from '@/infra/database'
+import { accessCodesRepository, sessionsRepository, usersRepository } from '@/infra/database/repositories'
 import { generateNanoId } from '@/lib/nanoid'
 
 export async function authenticateAccessCode(app: FastifyInstance) {
@@ -129,7 +129,7 @@ export async function authenticateAccessCode(app: FastifyInstance) {
         .setCookie('refreshToken', refreshToken, {
           httpOnly: true,
           secure: env.NODE_ENV === 'production',
-          sameSite: 'none',
+          sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
           path: '/',
           maxAge: 60 * 60 * 24 * 7, // 7 days
         })

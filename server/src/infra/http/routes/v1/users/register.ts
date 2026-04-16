@@ -4,8 +4,8 @@ import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import z from 'zod'
 import { BCRYPT_ROUNDS } from '@/config'
-import { db } from '@/db'
-import { usersRepository } from '@/db/repositories'
+import { db } from '@/infra/database'
+import { usersRepository } from '@/infra/database/repositories'
 
 export async function registerUser(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().post(

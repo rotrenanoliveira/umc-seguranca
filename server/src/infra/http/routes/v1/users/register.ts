@@ -4,8 +4,8 @@ import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import z from 'zod'
 import { BCRYPT_ROUNDS } from '@/config'
-import { db } from '@/db'
-import { usersRepository } from '@/db/repositories'
+import { db } from '@/infra/http/database'
+import { usersRepository } from '@/infra/http/database/repositories'
 
 export async function registerUser(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().post(
@@ -18,7 +18,7 @@ export async function registerUser(app: FastifyInstance) {
         body: z.object({
           email: z.email({ error: 'E-mail inválido.' }),
           name: z.string().min(1, { error: 'Nome é obrigatório.' }),
-          password: z.string().min(1, { error: 'Senha é obrigatória.' }),
+          password: z.string().min(8, { error: 'A senha deve ter no mínimo 8 caracteres.' }),
           consent: z.coerce.boolean().optional(),
         }),
         response: {

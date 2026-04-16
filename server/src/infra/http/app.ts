@@ -1,8 +1,8 @@
 import 'dotenv/config'
 import fastifyCookie from '@fastify/cookie'
-import cors from '@fastify/cors'
 import helmet from '@fastify/helmet'
 import fastifyJwt from '@fastify/jwt'
+import fastifyCors from '@fastify/cors'
 import rateLimit from '@fastify/rate-limit'
 import fastifySwagger from '@fastify/swagger'
 import scalarAPIReference from '@scalar/fastify-api-reference'
@@ -68,12 +68,20 @@ app.register(helmet, {
   contentSecurityPolicy: false,
 })
 
-app.register(cors, { origin: true })
+// CORS
+app.register(fastifyCors, {
+  origin: true,
+  credentials: true,
+  methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+})
+
+// RATE LIMIT
 app.register(rateLimit, {
   max: RATE_MAX,
   timeWindow: RATE_TIME_WINDOW_MS,
 })
 
+//==== Routes
 app.get('/health', async () => ({
   ok: true,
   tlsNote: 'Em produção, termine TLS no proxy reverso ou use HTTPS nativo do Node para criptografia em trânsito.',

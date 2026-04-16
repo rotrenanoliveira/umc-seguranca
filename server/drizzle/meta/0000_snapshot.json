@@ -75,12 +75,8 @@
           "name": "access_code_user_id_users_user_id_fk",
           "tableFrom": "access_code",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "user_id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["user_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -166,9 +162,7 @@
         "users_email_unique": {
           "name": "users_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       },
       "policies": {},
@@ -180,11 +174,7 @@
     "public.code_type": {
       "name": "code_type",
       "schema": "public",
-      "values": [
-        "PASSWORD_RESET",
-        "TWO_FACTOR_PENDING",
-        "TWO_FACTOR_EMAIL"
-      ]
+      "values": ["PASSWORD_RESET", "TWO_FACTOR_PENDING", "TWO_FACTOR_EMAIL"]
     }
   },
   "schemas": {},

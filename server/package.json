@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "pnpm env:load tsx --watch src/infra/http/server.ts",
-    "pre:start": "tsup",
+    "postinstall": "tsup",
     "start": "node dist/index.js",
     "db:generate": "pnpm env:load drizzle-kit generate",
     "db:migrate": "pnpm env:load drizzle-kit migrate",

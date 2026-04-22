@@ -37,6 +37,7 @@ export async function registerUser(app: FastifyInstance) {
         return reply.status(409).send({ message: 'E-mail já cadastrado' })
       }
 
+      // O hash do bcrypt já faz o processo salt internamente não sendo necessário ser realizado separadamente do hash
       const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS)
 
       const now = new Date()

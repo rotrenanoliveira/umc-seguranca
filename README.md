@@ -4,6 +4,8 @@ Este projeto implementa uma aplicação web com foco em autenticação segura, c
 
 - `app/web`: frontend em Next.js responsável pelas telas de cadastro, login em duas etapas e dashboard para teste dos endpoints.
 - `server`: API em Fastify com PostgreSQL + Drizzle ORM, onde ficam a autenticação, as sessões, o bloqueio por tentativas falhas e a emissão/validação dos códigos de acesso.
+- Link para testar o projeto: [WEB](https://umc-seguranca.vercel.app/)
+- Link para ver a documentação da API do projeto: [API](https://umc-seguranca.onrender.com/)
 
 ## O que foi implementado
 

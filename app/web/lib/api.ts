@@ -1,5 +1,5 @@
 // Configuração da API - altere a URL base conforme necessário
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://umc-seguranca.onrender.com'
 
 export async function apiRequest<T>(
   endpoint: string,

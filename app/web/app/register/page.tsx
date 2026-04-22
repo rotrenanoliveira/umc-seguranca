@@ -30,6 +30,9 @@ export default function RegisterPage() {
       const result = await apiRequest('/users', {
         method: 'POST',
         body: JSON.stringify(formData),
+        headers: {
+          'Content-Type': 'application/json',
+        },
       })
 
       setResponse(result)

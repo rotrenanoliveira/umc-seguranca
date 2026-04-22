@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { API_BASE_URL, apiRequest } from '@/lib/api'
 import { useAuth } from '@/lib/auth-context'
+import Link from 'next/link'
 
 interface UserProfile {
   user: {
@@ -114,6 +115,10 @@ export default function DashboardPage() {
             <p className="text-sm text-muted-foreground">
               API Base URL: <code className="bg-muted px-1 rounded">{API_BASE_URL}</code>
             </p>
+            <span>Veja a documentação da API neste link:</span>
+            <Button variant='link' asChild>
+              <Link href={'https://umc-seguranca.onrender.com/docs/'}>aqui</Link>
+            </Button>
           </CardContent>
         </Card>
       </div>

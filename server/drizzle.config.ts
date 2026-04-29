@@ -5,5 +5,5 @@ export default defineConfig({
     dialect: 'postgresql',
     dbCredentials: { url: env.DATABASE_URL },
     out: './drizzle',
-    schema: './src/db/schema.ts',
+    schema: './src/infra/database/schema.ts',
 })

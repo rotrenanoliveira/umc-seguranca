@@ -116,8 +116,8 @@ export default function DashboardPage() {
               API Base URL: <code className="bg-muted px-1 rounded">{API_BASE_URL}</code>
             </p>
             <span>Veja a documentação da API neste link:</span>
-            <Button variant='link' asChild>
-              <Link href={'https://umc-seguranca.onrender.com/docs/'}>aqui</Link>
+            <Button variant='link' asChild> 
+              <Link href={'https://umc-seguranca.onrender.com/docs/'} target='_blank' rel='noopener noreferrer'>aqui</Link>
             </Button>
           </CardContent>
         </Card>

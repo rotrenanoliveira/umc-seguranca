@@ -59,7 +59,7 @@ export async function authenticateAccessCode(app: FastifyInstance) {
         })
         .from(accessCodesRepository)
         .innerJoin(usersRepository, eq(accessCodesRepository.user, usersRepository.id))
-        .where(and(eq(accessCodesRepository.user, user.id), eq(accessCodesRepository.token, code)))
+        .where(and(eq(accessCodesRepository.user, user.id)))
         .then((result) => (result.length > 0 ? result[0] : null))
 
       let isValidAccessCode = false

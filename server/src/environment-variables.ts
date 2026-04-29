@@ -11,6 +11,8 @@ const envSchema = z.object({
   APP_PUBLIC_URL: z.url(),
   APP_PORT: z.coerce.number().default(3000),
   APP_HOST: z.string().default('0.0.0.0'),
+  // Encryption
+  ENCRYPTION_KEY: z.string(),
   // Authentication
   AUTHENTICATION_JWT_SECRET: z.string(),
   AUTHENTICATION_COOKIE_SECRET: z.string(),

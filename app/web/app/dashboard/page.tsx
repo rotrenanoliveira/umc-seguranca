@@ -76,17 +76,6 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {accessToken && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm font-medium">Access Token</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <code className="text-xs bg-muted p-2 rounded block break-all">{accessToken}</code>
-            </CardContent>
-          </Card>
-        )}
-
         <Card>
           <CardHeader>
             <CardTitle>Perfil do Usuário</CardTitle>

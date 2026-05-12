@@ -1,11 +1,13 @@
 import { boolean, customType, integer, pgEnum, pgTable, text, timestamp, uniqueIndex } from 'drizzle-orm/pg-core'
 import { generateNanoId } from '@/lib/nanoid'
-import { decrypt, encrypt } from '@/utils/crypto';
+import { decrypt, encrypt } from '@/utils/crypto'
 
 export const accessCodeTypeEnum = pgEnum('code_type', ['PASSWORD_RESET', 'TWO_FACTOR_PENDING', 'TWO_FACTOR_EMAIL'])
 
 const encryptedText = customType<{ data: string }>({
-  dataType() { return 'text'; },
+  dataType() {
+    return 'text'
+  },
   toDriver(value: unknown) {
     if (typeof value !== 'string') {
       throw new TypeError('Erro ao converter/encriptar para driver')
@@ -17,8 +19,8 @@ const encryptedText = customType<{ data: string }>({
       throw new TypeError('Erro ao converter/descriptografar do driver')
     }
     return decrypt(value)
-  }
-});
+  },
+})
 
 export const users = pgTable('users', {
   id: text('user_id')
@@ -66,6 +68,19 @@ export const sessions = pgTable('sessions', {
   revokedAt: timestamp('revoked_at'),
 })
 
+export const accessLogs = pgTable('access_logs', {
+  id: text('log_id')
+    .primaryKey()
+    .$defaultFn(() => generateNanoId()),
+  userId: text('user_id'),
+  ip: text('ip').notNull(),
+  method: text('method').notNull(),
+  url: text('url').notNull(),
+  statusCode: integer('status_code').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+})
+
 export type User = typeof users.$inferSelect
 export type AccessCode = typeof accessCodes.$inferSelect
 export type Session = typeof sessions.$inferSelect
+export type AccessLog = typeof accessLogs.$inferSelect

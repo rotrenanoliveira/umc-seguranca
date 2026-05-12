@@ -15,6 +15,7 @@ import {
 } from 'fastify-type-provider-zod'
 import { RATE_MAX, RATE_TIME_WINDOW_MS } from '@/config'
 import { env } from '@/environment-variables'
+import { logger } from './plugins/logger'
 import { authenticateRoutes } from './routes/v1/auth'
 import { sessionRoutes } from './routes/v1/sessions'
 import { userRoutes } from './routes/v1/users'
@@ -24,11 +25,11 @@ export const app = fastify({
     process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development'
       ? undefined
       : {
-        transport: {
-          target: 'pino-pretty',
-          options: { translateTime: 'HH:MM:ss Z', ignore: 'pid,hostname' },
+          transport: {
+            target: 'pino-pretty',
+            options: { translateTime: 'HH:MM:ss Z', ignore: 'pid,hostname' },
+          },
         },
-      },
 }).withTypeProvider<ZodTypeProvider>()
 
 app.setValidatorCompiler(validatorCompiler)
@@ -80,6 +81,9 @@ app.register(rateLimit, {
   max: RATE_MAX,
   timeWindow: RATE_TIME_WINDOW_MS,
 })
+
+// Logger
+app.register(logger)
 
 //==== Routes
 app.get('/health', async () => ({

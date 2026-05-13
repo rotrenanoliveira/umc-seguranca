@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs'
 import dayjs from 'dayjs'
-import { and, eq, isNull } from 'drizzle-orm'
+import { and, desc, eq, isNull } from 'drizzle-orm'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import z from 'zod'
@@ -18,6 +18,7 @@ export async function resetPassword(app: FastifyInstance) {
         description: 'Reset Senha',
         body: z.object({
           code: z.string().min(1),
+          userId: z.string().min(1),
           password: z.string().min(8).max(128),
         }),
         response: {
@@ -27,7 +28,7 @@ export async function resetPassword(app: FastifyInstance) {
       },
     },
     async (request, reply) => {
-      const { code, password } = request.body
+      const { code, userId, password } = request.body
 
       const accessCode = await db
         .select({
@@ -36,11 +37,22 @@ export async function resetPassword(app: FastifyInstance) {
           createdAt: accessCodesRepository.createdAt,
         })
         .from(accessCodesRepository)
-        .where(eq(accessCodesRepository.token, code))
+        .where(and(eq(accessCodesRepository.user, userId), eq(accessCodesRepository.type, 'PASSWORD_RESET')))
+        .orderBy(desc(accessCodesRepository.createdAt))
         .then((result) => (result.length > 0 ? result[0] : null))
 
       // Valida se o código existe
       if (!accessCode) {
+        return reply.status(401).send({ error: 'Credenciais inválidas.' })
+      }
+
+      // Valida se o código de acesso é o mesmo do código
+      if (accessCode.code !== code) {
+        return reply.status(401).send({ error: 'Credenciais inválidas.' })
+      }
+
+      // Valida se o código de acesso é o mesmo do usuário
+      if (accessCode.user !== userId) {
         return reply.status(401).send({ error: 'Credenciais inválidas.' })
       }
 

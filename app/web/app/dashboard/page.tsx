@@ -1,13 +1,12 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
-import { ApiTester } from '@/components/api-tester'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { API_BASE_URL, apiRequest } from '@/lib/api'
-import { useAuth } from '@/lib/auth-context'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useCallback, useEffect, useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { apiRequest } from '@/lib/api'
+import { useAuth } from '@/lib/auth-context'
 
 interface UserProfile {
   user: {
@@ -16,16 +15,27 @@ interface UserProfile {
   }
 }
 
-export default function DashboardPage() {
-  const router = useRouter()
-  const { accessToken, logout, isAuthenticated } = useAuth()
-  const [profile, setProfile] = useState<UserProfile | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+interface PersonalDataResponse {
+  message: string
+}
 
-  const fetchProfile = async () => {
-    setLoading(true)
-    setError('')
+export default function DashboardPage() {
+  const { accessToken, logout, isAuthenticated } = useAuth()
+  const router = useRouter()
+
+  const [profile, setProfile] = useState<UserProfile | null>(null)
+  const [profileLoading, setProfileLoading] = useState(false)
+  const [profileError, setProfileError] = useState('')
+
+  const [lgpdLoading, setLgpdLoading] = useState(false)
+  const [lgpdMessage, setLgpdMessage] = useState('')
+  const [lgpdError, setLgpdError] = useState('')
+
+  const loadProfile = useCallback(async () => {
+    if (!accessToken) return
+
+    setProfileLoading(true)
+    setProfileError('')
 
     const { data, error: apiError } = await apiRequest<UserProfile>('/sessions/me', {
       method: 'GET',
@@ -34,17 +44,27 @@ export default function DashboardPage() {
       },
     })
 
-    setLoading(false)
+    setProfileLoading(false)
 
     if (apiError) {
-      setError(apiError)
+      setProfile(null)
+      setProfileError(apiError)
       return
     }
 
     if (data) {
       setProfile(data)
     }
-  }
+  }, [accessToken])
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      void loadProfile()
+    } else {
+      setProfile(null)
+      setProfileError('')
+    }
+  }, [isAuthenticated, loadProfile])
 
   const handleLogout = async () => {
     await apiRequest('/logout', {
@@ -57,59 +77,100 @@ export default function DashboardPage() {
     router.push('/')
   }
 
+  const requestPersonalDataExport = async () => {
+    if (!accessToken) return
+
+    setLgpdLoading(true)
+    setLgpdMessage('')
+    setLgpdError('')
+
+    const { data, error: apiError } = await apiRequest<PersonalDataResponse>('/sessions/me/personal-data', {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    })
+
+    setLgpdLoading(false)
+
+    if (apiError) {
+      setLgpdError(apiError)
+      return
+    }
+
+    if (data?.message) {
+      setLgpdMessage(data.message)
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-background p-4">
-      <div className="max-w-4xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Dashboard - API Tester</h1>
-          <div className="flex items-center gap-2">
-            <span
-              className={`text-sm px-2 py-1 rounded ${isAuthenticated ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}
-            >
-              {isAuthenticated ? 'Autenticado' : 'Não autenticado'}
-            </span>
-            {isAuthenticated && (
-              <Button variant="outline" size="sm" onClick={handleLogout}>
-                Logout
+    <div className="min-h-screen bg-background p-6">
+      <div className="mx-auto flex max-w-lg flex-col gap-6">
+        <header className="flex items-center justify-between gap-4">
+          <h1 className="text-xl font-semibold tracking-tight">Painel</h1>
+          {isAuthenticated ? (
+            <Button variant="outline" size="sm" onClick={handleLogout} className='cursor-pointer'>
+              Sair
+            </Button>
+          ) : (
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/">Entrar</Link>
+            </Button>
+          )}
+        </header>
+
+        {!isAuthenticated ? (
+          <Card>
+            <CardHeader>
+              <CardTitle>Sessão necessária</CardTitle>
+              <CardDescription>Faça login para ver seu perfil e usar as opções desta página.</CardDescription>
+            </CardHeader>
+            <CardFooter>
+              <Button asChild>
+                <Link href="/">Ir para o login</Link>
               </Button>
-            )}
-          </div>
-        </div>
+            </CardFooter>
+          </Card>
+        ) : (
+          <Card>
+            <CardHeader>
+              <CardTitle>Seu perfil</CardTitle>
+              <CardDescription>Dados obtidos de GET /sessions/me</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {profileLoading && <p className="text-sm text-muted-foreground">Carregando perfil…</p>}
+              {profileError && <p className="text-sm text-destructive">{profileError}</p>}
+              {profile && (
+                <dl className="grid gap-3 text-sm">
+                  <div>
+                    <dt className="text-muted-foreground">Nome</dt>
+                    <dd className="font-medium">{profile.user.name}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted-foreground">E-mail</dt>
+                    <dd className="font-medium">{profile.user.email ?? '—'}</dd>
+                  </div>
+                </dl>
+              )}
+              {!profileLoading && !profileError && !profile && (
+                <p className="text-sm text-muted-foreground">Nenhum dado de perfil disponível.</p>
+              )}
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Perfil do Usuário</CardTitle>
-            <CardDescription>GET /sessions/me</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Button onClick={fetchProfile} disabled={loading || !isAuthenticated}>
-              {loading ? 'Carregando...' : 'Buscar Perfil'}
-            </Button>
-            {error && <p className="text-sm text-destructive">{error}</p>}
-            {profile && (
-              <div className="bg-muted p-4 rounded-md">
-                <pre className="text-sm">{JSON.stringify(profile, null, 2)}</pre>
+              <div className="border-t pt-4">
+                <h3 className="mb-1 text-sm font-medium">Cópia dos dados (LGPD)</h3>
+                <p className="mb-3 text-sm text-muted-foreground">
+                  Solicita a exportação completa dos dados vinculados à sua conta (art. 18, I e II da LGPD). O
+                  sistema gera um arquivo CSV e envia para o e-mail cadastrado.
+                </p>
+                <Button type="button" onClick={requestPersonalDataExport} disabled={lgpdLoading} className='cursor-pointer'>
+                  {lgpdLoading ? 'Enviando…' : 'Solicitar exportação dos meus dados'}
+                </Button>
+                {lgpdError && <p className="mt-2 text-sm text-destructive">{lgpdError}</p>}
+                {lgpdMessage && <p className="mt-2 text-sm text-green-700 dark:text-green-400">{lgpdMessage}</p>}
               </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <ApiTester />
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm">Configuração</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              API Base URL: <code className="bg-muted px-1 rounded">{API_BASE_URL}</code>
-            </p>
-            <span>Veja a documentação da API neste link:</span>
-            <Button variant='link' asChild> 
-              <Link href={'https://umc-seguranca.onrender.com/docs/'} target='_blank' rel='noopener noreferrer'>aqui</Link>
-            </Button>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   )

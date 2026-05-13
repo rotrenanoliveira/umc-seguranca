@@ -94,12 +94,12 @@ export default function ForgotPasswordPage() {
   if (step === 'reset') {
     return (
       <main className="min-h-screen flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
+        <Card className="w-full max-w-lg">
           <CardHeader>
             <CardTitle>Redefinir Senha</CardTitle>
             <CardDescription>Insira o token recebido e sua nova senha</CardDescription>
           </CardHeader>
-          <form onSubmit={handleResetPassword}>
+          <form onSubmit={handleResetPassword} className='space-y-2'>
             <CardContent className="space-y-4">
               <div className="bg-muted p-3 rounded">
                 <p className="text-sm text-muted-foreground mb-2">Resposta da solicitação:</p>
@@ -148,12 +148,12 @@ export default function ForgotPasswordPage() {
 
   return (
     <main className="min-h-screen flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-lg">
         <CardHeader>
           <CardTitle>Recuperar Senha</CardTitle>
           <CardDescription>Insira seu email para receber o token de recuperação</CardDescription>
         </CardHeader>
-        <form onSubmit={handleRequestReset}>
+        <form onSubmit={handleRequestReset} className='space-y-2'>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>

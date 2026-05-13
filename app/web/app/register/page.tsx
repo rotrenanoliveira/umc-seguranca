@@ -46,7 +46,7 @@ export default function RegisterPage() {
 
   if (success) {
     return (
-      <main className="min-h-screen flex items-center justify-center p-4">
+      <main className="min-h-screen flex items-center justify-center p-4 bg-background">
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle className="text-green-600">Registro realizado!</CardTitle>
@@ -68,7 +68,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-4">
+    <main className="min-h-screen flex items-center justify-center p-4 bg-background">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Criar Conta</CardTitle>
@@ -112,15 +112,21 @@ export default function RegisterPage() {
               />
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-start gap-2">
               <input
                 id="reg-consent"
                 type="checkbox"
                 checked={formData.consent}
                 onChange={(e) => setFormData({ ...formData, consent: e.target.checked })}
-                className="h-4 w-4"
+                className="mt-1 h-4 w-4 shrink-0"
               />
-              <Label htmlFor="reg-consent">Aceito os termos</Label>
+              <label htmlFor="reg-consent" className="text-sm leading-snug text-muted-foreground">
+                Declaro que li e concordo com o tratamento dos meus dados conforme a{' '}
+                <Link href="/politica-de-privacidade" className="text-primary hover:underline font-medium">
+                  Política de Privacidade
+                </Link>
+                .
+              </label>
             </div>
 
             {error && <div className="text-sm text-red-500 bg-red-50 p-3 rounded">{error}</div>}
@@ -130,10 +136,14 @@ export default function RegisterPage() {
             <Button type="submit" className="w-full" disabled={loading || !formData.consent}>
               {loading ? 'Registrando...' : 'Criar Conta'}
             </Button>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground text-center">
               Já tem uma conta?{' '}
               <Link href="/" className="text-primary hover:underline">
                 Fazer login
+              </Link>
+              {' · '}
+              <Link href="/politica-de-privacidade" className="text-primary hover:underline">
+                Privacidade
               </Link>
             </p>
           </CardFooter>

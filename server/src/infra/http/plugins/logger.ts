@@ -71,6 +71,36 @@ function getBearerToken(authorization: string | undefined): string | null {
   return parts.length === 2 ? (parts[1] ?? null) : null
 }
 
+type ErasureAuditParams = {
+  userId: string
+  ip: string
+  sendCopyBeforeDelete: boolean
+  method: string
+  urlPath: string
+  statusCode: number
+}
+/**
+ * Registro explícito no arquivo de access log (além do hook onResponse), para auditoria LGPD:
+ * confirma que o titular identificado por `userId` concluiu a exclusão dos seus dados.
+ */
+export async function erasureAudit(params: ErasureAuditParams): Promise<void> {
+  if (process.env.NODE_ENV === 'test') {
+    return
+  }
+
+  const now = new Date()
+  const ws = getStream(now)
+  const iso = now.toISOString()
+  const line =
+    `[${iso}]:LGPD:EXCLUSAO_DADOS_CONCLUIDA,made_by:${params.userId},` +
+    `sendCopyBeforeDelete:${params.sendCopyBeforeDelete},` +
+    `${params.method}:${params.urlPath},status_code:${params.statusCode},ip:${params.ip}\n`
+
+  if (!ws.write(line)) {
+    await once(ws, 'drain')
+  }
+}
+
 export const logger = fastifyPlugin(async (app: FastifyInstance) => {
   if (process.env.NODE_ENV === 'test') {
     return

@@ -127,6 +127,11 @@ export default function LoginPage() {
                   Esqueci a senha
                 </Link>
               </div>
+              <p className="text-center text-xs text-muted-foreground pt-1">
+                <Link href="/politica-de-privacidade" className="text-primary hover:underline">
+                  Política de Privacidade
+                </Link>
+              </p>
             </form>
           ) : (
             <form onSubmit={handleCodeSubmit} className="space-y-4">
@@ -159,6 +164,11 @@ export default function LoginPage() {
               >
                 Voltar
               </Button>
+              <p className="text-center text-xs text-muted-foreground pt-1">
+                <Link href="/politica-de-privacidade" className="text-primary hover:underline">
+                  Política de Privacidade
+                </Link>
+              </p>
             </form>
           )}
         </CardContent>

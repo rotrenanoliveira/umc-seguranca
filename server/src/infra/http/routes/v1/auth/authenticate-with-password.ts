@@ -128,8 +128,6 @@ export async function authenticateWithPassword(app: FastifyInstance) {
         request.log.warn({ userId: user.id, email: user.email }, `Erro ao enviar e-mail: ${mail.error}`)
       }
 
-      console.log(mail.error)
-
       return reply.send({
         expiresInMinutes: TWO_FACTOR_PENDING_TTL_MIN,
         message: !mail.error

@@ -21,7 +21,7 @@ export async function forgotPassword(app: FastifyInstance) {
           email: z.email(),
         }),
         response: {
-          200: z.object({ message: z.string() }),
+          200: z.object({ user: z.string(), message: z.string() }),
           400: z.object({ error: z.string() }),
           500: z.object({ error: z.string() }),
         },
@@ -77,6 +77,7 @@ export async function forgotPassword(app: FastifyInstance) {
       })
 
       return reply.send({
+        user: user.id,
         message: !mail.error
           ? 'Enviamos um e-mail para o seu e-mail.'
           : `Não foi possível enviar o e-mail para o seu e-mail: ${mail.error}.`,

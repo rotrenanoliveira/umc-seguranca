@@ -1,7 +1,5 @@
 import { z } from 'zod'
 
-// console.log(process.env)
-
 const envSchema = z.object({
   // Environment
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),

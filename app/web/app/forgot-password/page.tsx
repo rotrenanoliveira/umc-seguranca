@@ -14,11 +14,13 @@ export default function ForgotPasswordPage() {
   const [step, setStep] = useState<Step>('request')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
   const [response, setResponse] = useState<unknown>(null)
 
   const [email, setEmail] = useState('')
   const [resetData, setResetData] = useState({
-    token: '',
+    userId: '',
+    code: '',
     password: '',
   })
 
@@ -38,6 +40,16 @@ export default function ForgotPasswordPage() {
 
       setResponse(result)
       setStep('reset')
+
+      if (
+        result?.data &&
+        typeof result.data === 'object' &&
+        'user' in result.data &&
+        typeof result.data.user === 'string'
+      ) {
+        const userId = result.data.user
+        setResetData((prev) => ({ ...prev, userId }))
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao solicitar recuperação')
     } finally {
@@ -52,7 +64,7 @@ export default function ForgotPasswordPage() {
 
     try {
       const result = await apiRequest('/password/reset', {
-        method: 'PATCH',
+        method: 'POST',
         body: JSON.stringify(resetData),
         headers: {
           'Content-Type': 'application/json',
@@ -99,7 +111,7 @@ export default function ForgotPasswordPage() {
             <CardTitle>Redefinir Senha</CardTitle>
             <CardDescription>Insira o token recebido e sua nova senha</CardDescription>
           </CardHeader>
-          <form onSubmit={handleResetPassword} className='space-y-2'>
+          <form onSubmit={handleResetPassword} className="space-y-2">
             <CardContent className="space-y-4">
               <div className="bg-muted p-3 rounded">
                 <p className="text-sm text-muted-foreground mb-2">Resposta da solicitação:</p>
@@ -112,8 +124,8 @@ export default function ForgotPasswordPage() {
                   id="token"
                   type="text"
                   placeholder="Token recebido por email"
-                  value={resetData.token}
-                  onChange={(e) => setResetData({ ...resetData, token: e.target.value })}
+                  value={resetData.code}
+                  onChange={(e) => setResetData({ ...resetData, code: e.target.value })}
                   required
                 />
               </div>
@@ -128,6 +140,10 @@ export default function ForgotPasswordPage() {
                   onChange={(e) => setResetData({ ...resetData, password: e.target.value })}
                   required
                 />
+              </div>
+
+              <div className="space-y-2">
+                <Input name="user" id="user" type="text" value={resetData.userId} readOnly />
               </div>
 
               {error && <div className="text-sm text-red-500 bg-red-50 p-3 rounded">{error}</div>}
@@ -153,7 +169,7 @@ export default function ForgotPasswordPage() {
           <CardTitle>Recuperar Senha</CardTitle>
           <CardDescription>Insira seu email para receber o token de recuperação</CardDescription>
         </CardHeader>
-        <form onSubmit={handleRequestReset} className='space-y-2'>
+        <form onSubmit={handleRequestReset} className="space-y-2">
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>

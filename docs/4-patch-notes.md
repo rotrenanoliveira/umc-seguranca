@@ -10,6 +10,8 @@ Ordem do mais recente para o mais antigo. O título da PR reproduz o sufixo do m
 
 | PR | Branch / título no merge | Data do merge |
 |----|--------------------------|---------------|
+| #13 | `fix/user-mail-case-sensitive` | **2026-05-14** |
+| #12 | `/docs` | **2026-05-14** |
 | #11 | `feat/delete-user` | **2026-05-13** |
 | #10 | `feat/privacy-policies` | **2026-05-13** |
 | #9 | `fix/password-reset` | **2026-05-13** |
@@ -21,6 +23,14 @@ Ordem do mais recente para o mais antigo. O título da PR reproduz o sufixo do m
 | #3 | Entrega 4 | **2026-04-29** |
 | #2 | `refact/sessions` | **2026-04-15** |
 | #1 | `refact/authenticate` | **2026-04-15** |
+
+### PR #13 — `fix/user-mail-case-sensitive` — 2026-05-14
+
+- **Normalização do e-mail** para minúsculas antes do envio à API no **cadastro** e na etapa de **código 2FA** do login, evitando divergência quando o usuário digita o endereço com maiúsculas diferentes das salvas no servidor.
+
+### PR #12 — `/docs` — 2026-05-14
+
+- **Documentação** no repositório: textos em `docs/` (autenticação, logs, criptografia), changelog e índice `docs/README.md`; ajustes correlatos no README principal.
 
 ### PR #11 — `feat/delete-user` — 2026-05-13
 

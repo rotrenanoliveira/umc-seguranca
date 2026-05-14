@@ -60,7 +60,7 @@ export default function LoginPage() {
 
     const { data, error: apiError } = await apiRequest<{ token: string }>('/auth/authenticate-access-code', {
       method: 'POST',
-      body: JSON.stringify({ email, code }),
+      body: JSON.stringify({ email: email.toLowerCase(), code }),
       headers: {
         'Content-Type': 'application/json',
       },

@@ -29,7 +29,7 @@ export default function RegisterPage() {
     try {
       const result = await apiRequest('/users', {
         method: 'POST',
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, email: formData.email.toLowerCase() }),
         headers: {
           'Content-Type': 'application/json',
         },

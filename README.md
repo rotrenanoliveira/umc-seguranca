@@ -7,6 +7,10 @@ Este projeto implementa uma aplicação web com foco em autenticação segura, c
 - Link para testar o projeto: [WEB](https://umc-seguranca.vercel.app/)
 - Link para ver a documentação da API do projeto: [API](https://umc-seguranca.onrender.com/docs)
 
+## Documentação complementar
+
+Textos técnicos organizados na pasta `docs/` (autenticação, logs, criptografia e changelog): **[índice em docs/README.md](./docs/README.md)**.
+
 ## O que foi implementado
 
 O projeto atende ao objetivo da disciplina ao concentrar os principais controles de segurança no fluxo de identidade:
@@ -74,6 +78,8 @@ As entidades centrais para autenticação sao:
 4. O registro do usuário e salvo no banco.
 5. O sistema retorna o identificador do usuário criado.
 
+![Tela de cadastro no frontend](docs/images/1-criar-conta.png)
+
 ## Login com senha + 2FA
 
 1. O usuário informa `email` e `senha` na tela inicial.
@@ -87,6 +93,8 @@ As entidades centrais para autenticação sao:
 9. O código e salvo na tabela `access_code` com tipo `TWO_FACTOR_EMAIL`.
 10. O código e enviado ao e-mail do usuário.
 11. O frontend troca para a segunda etapa do login e solicita o código.
+
+![Tela de login no frontend](docs/images/2-login.png)
 
 ## Validação do código 2FA e abertura da sessão
 
@@ -110,6 +118,8 @@ As entidades centrais para autenticação sao:
 1. Para acessar rotas protegidas, o frontend envia o `accessToken` no header `Authorization: Bearer ...`.
 2. A API valida o JWT e identifica o usuário autenticado.
 3. Um exemplo desse fluxo e `GET /sessions/me`, que retorna o perfil do usuário logado.
+
+![Dashboard após autenticação](docs/images/3-dashboard.png)
 
 ## Renovação da autenticação
 

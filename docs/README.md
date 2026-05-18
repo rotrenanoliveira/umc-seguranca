@@ -10,6 +10,7 @@ Textos de apoio à disciplina de **Segurança**: autenticação, logs, criptogra
 | [2-logs.md](./2-logs.md) | Registro de eventos e uso do logger |
 | [3-criptografia.md](./3-criptografia.md) | Criptografia de dados sensíveis em repouso |
 | [4-patch-notes.md](./4-patch-notes.md) | Changelog com datas das PRs e outras alterações |
+| [5-arquitetura.md](./5-arquitetura.md) | Arquitetura e diagramas do sistema |
 
 ## Imagens
 
